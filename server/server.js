@@ -22,12 +22,18 @@ passport.use(
     {
       clientID: keys.googleClientID,
       clientSecret: keys.googleClientSecret,
-      //callbackURL must match the authorized redirect URIs on google
+      //callbackURL must match the authorized redirect URIs on the google API
       callbackURL: '/auth/google/callback'
     },
     //callback as 2nd argument
-    (accessToken)=>{
-      console.log(accessToken);
+    (accessToken, refreshToken, profile)=>{
+
+      //accessToken allows you to do other things like do things with their google account
+      console.log('accessToken', accessToken);
+      //refreshToken refreshes the accessToken since it expires after a amount of time
+      console.log('refreshToken', refreshToken);
+      //the profile information from Google.
+      console.log('profile:', profile);
     }
   )
 )
@@ -40,6 +46,11 @@ passport.use(
 app.get('/auth/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }))
+
+//after passport authentication, when google is passing it back to us,
+//we use the Google Strategy -- now we have the code/token available from the initial/earlier request
+//once the user comes back to this server from google, we use the Google Strategy
+app.get('/auth/google/callback', passport.authenticate('google'))
 
 app.listen(PORT, ()=>{
   console.log(`Listening on PORT ${PORT}`);
